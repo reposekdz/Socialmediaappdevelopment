@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Card } from './ui/card';
+import { HighlightManager } from './HighlightManager';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -39,6 +40,7 @@ interface AdvancedProfileProps {
 export function AdvancedProfile({ currentUser }: AdvancedProfileProps) {
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
+  const [showHighlightManager, setShowHighlightManager] = useState(false);
   const [followersData, setFollowersData] = useState([
     { id: 1, name: 'Sarah Johnson', username: 'sarahj', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah', verified: true, following: true },
     { id: 2, name: 'Mike Chen', username: 'mikechen', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=mike', verified: false, following: true },
@@ -298,6 +300,7 @@ export function AdvancedProfile({ currentUser }: AdvancedProfileProps) {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => setShowHighlightManager(true)}
                 className="flex-shrink-0 flex flex-col items-center gap-2"
               >
                 <div className="w-24 h-32 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-purple-500 transition-colors bg-gradient-to-br from-gray-50 to-gray-100">
@@ -554,6 +557,13 @@ export function AdvancedProfile({ currentUser }: AdvancedProfileProps) {
           </ScrollArea>
         </DialogContent>
       </Dialog>
+
+      {/* Highlight Manager */}
+      <HighlightManager
+        open={showHighlightManager}
+        onClose={() => setShowHighlightManager(false)}
+        currentUser={currentUser}
+      />
     </div>
   );
 }

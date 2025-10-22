@@ -44,7 +44,9 @@ export function ResponsiveLeftSidebar({ currentUser, currentView, onViewChange, 
 
   const quickActions = [
     { id: 'story', label: 'Create Story', icon: '📸', gradient: 'from-purple-500 to-pink-500' },
+    { id: 'createReel', label: 'Create Reel', icon: '🎬', gradient: 'from-blue-500 to-cyan-500' },
     { id: 'live', label: 'Go Live', icon: '🔴', gradient: 'from-red-500 to-orange-500' },
+    { id: 'upload', label: 'Upload Media', icon: '📤', gradient: 'from-green-500 to-emerald-500' },
   ];
 
   return (
@@ -98,8 +100,8 @@ export function ResponsiveLeftSidebar({ currentUser, currentView, onViewChange, 
             onClick={() => onViewChange(action.id)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r ${action.gradient} text-white shadow-lg transition-all`}
           >
-            <span className="text-xl">{action.icon}</span>
-            <span className="hidden xl:block flex-1 text-left">{action.label}</span>
+            <span className="text-xl flex-shrink-0">{action.icon}</span>
+            <span className="flex-1 text-left text-sm">{action.label}</span>
           </motion.button>
         ))}
       </motion.div>
@@ -136,12 +138,12 @@ export function ResponsiveLeftSidebar({ currentUser, currentView, onViewChange, 
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 />
               )}
-              <Icon className={`w-5 h-5 relative z-10 ${isActive ? 'text-white' : 'text-gray-600'}`} />
-              <span className="hidden xl:block flex-1 text-left relative z-10">{item.label}</span>
+              <Icon className={`w-5 h-5 relative z-10 flex-shrink-0 ${isActive ? 'text-white' : 'text-gray-600'}`} />
+              <span className="flex-1 text-left relative z-10 text-sm">{item.label}</span>
               {item.badge && (
                 <Badge 
                   variant={isActive ? 'secondary' : 'default'} 
-                  className="hidden xl:flex relative z-10 bg-gradient-to-r from-red-500 to-pink-500 border-0"
+                  className="relative z-10 bg-gradient-to-r from-red-500 to-pink-500 border-0 text-xs"
                 >
                   {item.badge}
                 </Badge>
@@ -168,8 +170,8 @@ export function ResponsiveLeftSidebar({ currentUser, currentView, onViewChange, 
               : 'hover:bg-gray-50 text-gray-700'
           }`}
         >
-          <Settings className="w-5 h-5" />
-          <span className="hidden xl:block flex-1 text-left">Settings</span>
+          <Settings className="w-5 h-5 flex-shrink-0" />
+          <span className="flex-1 text-left text-sm">Settings</span>
         </motion.button>
         <motion.button 
           whileHover={{ scale: 1.02, x: 5 }}
@@ -177,8 +179,8 @@ export function ResponsiveLeftSidebar({ currentUser, currentView, onViewChange, 
           onClick={onLogout}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 transition-all"
         >
-          <LogOut className="w-5 h-5" />
-          <span className="hidden xl:block flex-1 text-left">Logout</span>
+          <LogOut className="w-5 h-5 flex-shrink-0" />
+          <span className="flex-1 text-left text-sm">Logout</span>
         </motion.button>
       </motion.div>
     </div>

@@ -16,6 +16,9 @@ import { AudioCallModal } from './AudioCallModal';
 import { EnhancedCreatePost } from './EnhancedCreatePost';
 import { LiveStreamingModal } from './LiveStreamingModal';
 import { StoryCreator } from './StoryCreator';
+import { ReelsCreator } from './ReelsCreator';
+import { HighlightManager } from './HighlightManager';
+import { MediaUploader } from './MediaUploader';
 
 interface MainLayoutProps {
   currentUser: any;
@@ -30,6 +33,9 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [showLiveStream, setShowLiveStream] = useState(false);
   const [showStoryCreator, setShowStoryCreator] = useState(false);
+  const [showReelsCreator, setShowReelsCreator] = useState(false);
+  const [showHighlightManager, setShowHighlightManager] = useState(false);
+  const [showMediaUploader, setShowMediaUploader] = useState(false);
 
   const handleStartVideoCall = (user: any) => {
     setCallUser(user);
@@ -48,6 +54,12 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
       setShowLiveStream(true);
     } else if (view === 'story') {
       setShowStoryCreator(true);
+    } else if (view === 'createReel') {
+      setShowReelsCreator(true);
+    } else if (view === 'highlights') {
+      setShowHighlightManager(true);
+    } else if (view === 'upload') {
+      setShowMediaUploader(true);
     } else {
       setCurrentView(view);
     }
@@ -168,6 +180,34 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
           }}
         />
       )}
+
+      {/* Reels Creator Modal */}
+      {showReelsCreator && (
+        <ReelsCreator
+          onClose={() => setShowReelsCreator(false)}
+          onPublish={(reel) => {
+            console.log('Reel published:', reel);
+            setShowReelsCreator(false);
+          }}
+        />
+      )}
+
+      {/* Highlight Manager */}
+      <HighlightManager
+        open={showHighlightManager}
+        onClose={() => setShowHighlightManager(false)}
+        currentUser={currentUser}
+      />
+
+      {/* Media Uploader */}
+      <MediaUploader
+        open={showMediaUploader}
+        onClose={() => setShowMediaUploader(false)}
+        onUpload={(media) => {
+          console.log('Media uploaded:', media);
+          setShowMediaUploader(false);
+        }}
+      />
     </div>
   );
 }
