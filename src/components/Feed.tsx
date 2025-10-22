@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { EnhancedCreatePost } from './EnhancedCreatePost';
 import { Stories } from './Stories';
-import { Post } from './Post';
+import { AdvancedPost } from './AdvancedPost';
+import { motion } from 'motion/react';
 
 interface FeedProps {
   currentUser: any;
@@ -160,21 +161,20 @@ export function Feed({ currentUser, onStartVideoCall, onStartAudioCall }: FeedPr
       <EnhancedCreatePost currentUser={currentUser} onCreatePost={handleCreatePost} />
       
       {/* Posts Feed */}
-      <div className="space-y-4">
+      <motion.div 
+        className="space-y-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ staggerChildren: 0.1 }}
+      >
         {posts.map((post) => (
-          <Post
+          <AdvancedPost
             key={post.id}
             post={post}
             currentUser={currentUser}
-            onLike={handleLike}
-            onSave={handleSave}
-            onComment={handleComment}
-            onShare={handleShare}
-            onStartVideoCall={onStartVideoCall}
-            onStartAudioCall={onStartAudioCall}
           />
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }

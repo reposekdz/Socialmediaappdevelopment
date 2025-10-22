@@ -14,6 +14,8 @@ import { SettingsPage } from './SettingsPage';
 import { VideoCallModal } from './VideoCallModal';
 import { AudioCallModal } from './AudioCallModal';
 import { EnhancedCreatePost } from './EnhancedCreatePost';
+import { LiveStreamingModal } from './LiveStreamingModal';
+import { StoryCreator } from './StoryCreator';
 
 interface MainLayoutProps {
   currentUser: any;
@@ -26,6 +28,8 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
   const [showAudioCall, setShowAudioCall] = useState(false);
   const [callUser, setCallUser] = useState<any>(null);
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const [showLiveStream, setShowLiveStream] = useState(false);
+  const [showStoryCreator, setShowStoryCreator] = useState(false);
 
   const handleStartVideoCall = (user: any) => {
     setCallUser(user);
@@ -40,6 +44,10 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
   const handleViewChange = (view: string) => {
     if (view === 'create') {
       setShowCreatePost(true);
+    } else if (view === 'live') {
+      setShowLiveStream(true);
+    } else if (view === 'story') {
+      setShowStoryCreator(true);
     } else {
       setCurrentView(view);
     }
@@ -127,19 +135,38 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
       {/* Create Post Modal */}
       {showCreatePost && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
             <EnhancedCreatePost
               currentUser={currentUser}
               onCreatePost={handleCreatePost}
             />
             <button
               onClick={() => setShowCreatePost(false)}
-              className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center"
+              className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center z-10"
             >
               ×
             </button>
           </div>
         </div>
+      )}
+
+      {/* Live Streaming Modal */}
+      {showLiveStream && (
+        <LiveStreamingModal
+          onClose={() => setShowLiveStream(false)}
+          currentUser={currentUser}
+        />
+      )}
+
+      {/* Story Creator Modal */}
+      {showStoryCreator && (
+        <StoryCreator
+          onClose={() => setShowStoryCreator(false)}
+          onPublish={(story) => {
+            console.log('Story published:', story);
+            setShowStoryCreator(false);
+          }}
+        />
       )}
     </div>
   );

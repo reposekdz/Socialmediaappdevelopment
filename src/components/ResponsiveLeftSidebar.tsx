@@ -42,6 +42,11 @@ export function ResponsiveLeftSidebar({ currentUser, currentView, onViewChange, 
     { id: 'events', label: 'Events', icon: Calendar, badge: null },
   ];
 
+  const quickActions = [
+    { id: 'story', label: 'Create Story', icon: '📸', gradient: 'from-purple-500 to-pink-500' },
+    { id: 'live', label: 'Go Live', icon: '🔴', gradient: 'from-red-500 to-orange-500' },
+  ];
+
   return (
     <div className="sticky top-4 space-y-4 hidden lg:block">
       {/* Logo and Brand */}
@@ -76,6 +81,27 @@ export function ResponsiveLeftSidebar({ currentUser, currentView, onViewChange, 
             <p className="text-xs text-gray-500">@{currentUser.username}</p>
           </div>
         </motion.div>
+      </motion.div>
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="bg-white rounded-xl p-2 shadow-sm space-y-2"
+      >
+        {quickActions.map((action) => (
+          <motion.button
+            key={action.id}
+            whileHover={{ scale: 1.02, x: 5 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => onViewChange(action.id)}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r ${action.gradient} text-white shadow-lg transition-all`}
+          >
+            <span className="text-xl">{action.icon}</span>
+            <span className="hidden xl:block flex-1 text-left">{action.label}</span>
+          </motion.button>
+        ))}
       </motion.div>
 
       {/* Navigation Menu */}
