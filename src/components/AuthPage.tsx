@@ -5,8 +5,9 @@ import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Checkbox } from './ui/checkbox';
-import { Users, Mail, Lock, User, Phone, Calendar } from 'lucide-react';
+import { Users, Mail, Lock, User, Phone, Calendar, Loader2 } from 'lucide-react';
 import { toast } from 'sonner@2.0.3';
+import { authAPI } from '../utils/api';
 
 interface AuthPageProps {
   onLogin: (user: any) => void;
@@ -25,8 +26,9 @@ export function AuthPage({ onLogin }: AuthPageProps) {
     dateOfBirth: '',
   });
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!loginEmail || !loginPassword) {
@@ -34,24 +36,25 @@ export function AuthPage({ onLogin }: AuthPageProps) {
       return;
     }
 
-    // Mock login
-    const user = {
-      id: '1',
-      email: loginEmail,
-      username: loginEmail.split('@')[0],
-      fullName: 'Demo User',
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginEmail}`,
-      bio: 'Living my best life 🌟',
-      followers: 1234,
-      following: 567,
-      verified: true,
-    };
-
-    toast.success('Login successful!');
-    onLogin(user);
+    setIsLoading(true);
+    try {
+      const response = await authAPI.signIn(loginEmail, loginPassword);
+      
+      if (response.success && response.user) {
+        toast.success('Login successful!');
+        onLogin(response.user);
+      } else {
+        toast.error('Login failed. Please try again.');
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      toast.error(error.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!registerData.fullName || !registerData.username || !registerData.email || !registerData.password) {
@@ -69,21 +72,32 @@ export function AuthPage({ onLogin }: AuthPageProps) {
       return;
     }
 
-    // Mock registration
-    const user = {
-      id: Math.random().toString(36).substr(2, 9),
-      email: registerData.email,
-      username: registerData.username,
-      fullName: registerData.fullName,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${registerData.username}`,
-      bio: '',
-      followers: 0,
-      following: 0,
-      verified: false,
-    };
-
-    toast.success('Registration successful!');
-    onLogin(user);
+    setIsLoading(true);
+    try {
+      const response = await authAPI.signUp(
+        registerData.email,
+        registerData.password,
+        registerData.fullName,
+        registerData.username
+      );
+      
+      if (response.success && response.user) {
+        toast.success('Registration successful! Please sign in.');
+        
+        // Auto sign in
+        const loginResponse = await authAPI.signIn(registerData.email, registerData.password);
+        if (loginResponse.success && loginResponse.user) {
+          onLogin(loginResponse.user);
+        }
+      } else {
+        toast.error('Registration failed. Please try again.');
+      }
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      toast.error(error.message || 'Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -191,8 +205,19 @@ export function AuthPage({ onLogin }: AuthPageProps) {
                     </Button>
                   </div>
 
-                  <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                    Sign In
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing In...
+                      </>
+                    ) : (
+                      'Sign In'
+                    )}
                   </Button>
                 </form>
               </TabsContent>
@@ -314,8 +339,19 @@ export function AuthPage({ onLogin }: AuthPageProps) {
                     </label>
                   </div>
 
-                  <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                    Create Account
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Account...
+                      </>
+                    ) : (
+                      'Create Account'
+                    )}
                   </Button>
                 </form>
               </TabsContent>

@@ -2,23 +2,26 @@ import { useState } from 'react';
 import { ResponsiveLeftSidebar } from './ResponsiveLeftSidebar';
 import { MobileBottomNav } from './MobileBottomNav';
 import { RightSidebar } from './RightSidebar';
-import { Feed } from './Feed';
-import { Reels } from './Reels';
-import { Explore } from './Explore';
+import { BackendFeed } from './BackendFeed';
+import { BackendExplore } from './BackendExplore';
+import { AdvancedReelsView } from './AdvancedReelsView';
+import { AdvancedStoryView } from './AdvancedStoryView';
 import { EnhancedMessages } from './EnhancedMessages';
 import { Notifications } from './Notifications';
 import { AdvancedProfile } from './AdvancedProfile';
 import { Groups } from './Groups';
 import { Search } from './Search';
 import { SettingsPage } from './SettingsPage';
-import { VideoCallModal } from './VideoCallModal';
-import { AudioCallModal } from './AudioCallModal';
+import { RealVideoCallModal } from './RealVideoCallModal';
+import { RealAudioCallModal } from './RealAudioCallModal';
 import { EnhancedCreatePost } from './EnhancedCreatePost';
 import { LiveStreamingModal } from './LiveStreamingModal';
 import { StoryCreator } from './StoryCreator';
 import { ReelsCreator } from './ReelsCreator';
 import { HighlightManager } from './HighlightManager';
 import { MediaUploader } from './MediaUploader';
+import { ProfileView } from './ProfileView';
+import { authAPI } from '../utils/api';
 
 interface MainLayoutProps {
   currentUser: any;
@@ -36,6 +39,8 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
   const [showReelsCreator, setShowReelsCreator] = useState(false);
   const [showHighlightManager, setShowHighlightManager] = useState(false);
   const [showMediaUploader, setShowMediaUploader] = useState(false);
+  const [showProfileView, setShowProfileView] = useState(false);
+  const [profileViewUserId, setProfileViewUserId] = useState<string | null>(null);
 
   const handleStartVideoCall = (user: any) => {
     setCallUser(user);
@@ -45,6 +50,21 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
   const handleStartAudioCall = (user: any) => {
     setCallUser(user);
     setShowAudioCall(true);
+  };
+
+  const handleViewProfile = (userId: string) => {
+    setProfileViewUserId(userId);
+    setShowProfileView(true);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await authAPI.signOut();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      onLogout();
+    }
   };
 
   const handleViewChange = (view: string) => {
@@ -68,25 +88,57 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
   const renderMainContent = () => {
     switch (currentView) {
       case 'feed':
-        return <Feed currentUser={currentUser} onStartVideoCall={handleStartVideoCall} onStartAudioCall={handleStartAudioCall} />;
+        return (
+          <>
+            <AdvancedStoryView 
+              currentUser={currentUser} 
+              onViewProfile={handleViewProfile}
+              onCreateStory={() => setShowStoryCreator(true)}
+            />
+            <div className="mt-4">
+              <BackendFeed 
+                currentUser={currentUser} 
+                onStartVideoCall={handleStartVideoCall} 
+                onStartAudioCall={handleStartAudioCall} 
+                onViewProfile={handleViewProfile} 
+              />
+            </div>
+          </>
+        );
       case 'reels':
-        return <Reels currentUser={currentUser} />;
+        return <AdvancedReelsView currentUser={currentUser} onViewProfile={handleViewProfile} />;
       case 'explore':
-        return <Explore currentUser={currentUser} />;
+        return <BackendExplore currentUser={currentUser} onViewProfile={handleViewProfile} />;
       case 'messages':
-        return <EnhancedMessages currentUser={currentUser} onStartVideoCall={handleStartVideoCall} onStartAudioCall={handleStartAudioCall} />;
+        return <EnhancedMessages currentUser={currentUser} onStartVideoCall={handleStartVideoCall} onStartAudioCall={handleStartAudioCall} onViewProfile={handleViewProfile} />;
       case 'notifications':
-        return <Notifications currentUser={currentUser} />;
+        return <Notifications currentUser={currentUser} onViewProfile={handleViewProfile} />;
       case 'profile':
-        return <AdvancedProfile currentUser={currentUser} />;
+        return <AdvancedProfile currentUser={currentUser} onViewProfile={handleViewProfile} />;
       case 'groups':
-        return <Groups currentUser={currentUser} />;
+        return <Groups currentUser={currentUser} onViewProfile={handleViewProfile} />;
       case 'search':
-        return <Search currentUser={currentUser} />;
+        return <Search currentUser={currentUser} onViewProfile={handleViewProfile} />;
       case 'settings':
         return <SettingsPage currentUser={currentUser} />;
       default:
-        return <Feed currentUser={currentUser} onStartVideoCall={handleStartVideoCall} onStartAudioCall={handleStartAudioCall} />;
+        return (
+          <>
+            <AdvancedStoryView 
+              currentUser={currentUser} 
+              onViewProfile={handleViewProfile}
+              onCreateStory={() => setShowStoryCreator(true)}
+            />
+            <div className="mt-4">
+              <BackendFeed 
+                currentUser={currentUser} 
+                onStartVideoCall={handleStartVideoCall} 
+                onStartAudioCall={handleStartAudioCall} 
+                onViewProfile={handleViewProfile} 
+              />
+            </div>
+          </>
+        );
     }
   };
 
@@ -104,7 +156,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
             currentUser={currentUser} 
             currentView={currentView}
             onViewChange={handleViewChange}
-            onLogout={onLogout}
+            onLogout={handleLogout}
           />
         </div>
 
@@ -126,21 +178,27 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
         unreadMessages={12}
       />
 
-      {/* Video Call Modal */}
-      {showVideoCall && (
-        <VideoCallModal
+      {/* Video Call Modal - Real WebRTC */}
+      {showVideoCall && callUser && (
+        <RealVideoCallModal
           user={callUser}
           currentUser={currentUser}
-          onClose={() => setShowVideoCall(false)}
+          onClose={() => {
+            setShowVideoCall(false);
+            setCallUser(null);
+          }}
         />
       )}
 
-      {/* Audio Call Modal */}
-      {showAudioCall && (
-        <AudioCallModal
+      {/* Audio Call Modal - Real WebRTC */}
+      {showAudioCall && callUser && (
+        <RealAudioCallModal
           user={callUser}
           currentUser={currentUser}
-          onClose={() => setShowAudioCall(false)}
+          onClose={() => {
+            setShowAudioCall(false);
+            setCallUser(null);
+          }}
         />
       )}
 
@@ -208,6 +266,22 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
           setShowMediaUploader(false);
         }}
       />
+
+      {/* Profile View Modal */}
+      {showProfileView && profileViewUserId && (
+        <ProfileView
+          userId={profileViewUserId}
+          currentUser={currentUser}
+          onClose={() => {
+            setShowProfileView(false);
+            setProfileViewUserId(null);
+          }}
+          onMessageClick={(user) => {
+            setShowProfileView(false);
+            setCurrentView('messages');
+          }}
+        />
+      )}
     </div>
   );
 }
